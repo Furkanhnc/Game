@@ -2,865 +2,727 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="Tarayıcıda oynanabilen ücretsiz HTML oyunu">
-    <title>Tarayıcı Oyunu – HTML & JavaScript</title>
+    <title>Neon Block Master: Strateji ve Zeka Oyunu | Play Free</title>
+    
+    <meta name="description" content="En iyi neon blok yerleştirme ve bulmaca oyunu. Strateji geliştir, blokları patlat, level atla ve yeteneklerini kullan. @frkhnci tarafından geliştirilen ücretsiz HTML5 zeka oyunu.">
+    <meta name="keywords" content="blok oyunu, block puzzle, neon oyun, tetris benzeri, zeka oyunu, strateji, html5 oyun, ücretsiz oyun, brain teaser, @frkhnci, level sistemi, reroll, smash">
+    <meta name="author" content="Furkan Hanci (@frkhnci)">
+    <meta name="robots" content="index, follow">
+    
+    <meta property="og:title" content="Neon Block Master - Zeka ve Strateji">
+    <meta property="og:description" content="Bu oyunda sadece parmakların değil, beynin de çalışmalı. Rekorunu kırabilir misin?">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.instagram.com/frkhnci/">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;600;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@500;700&display=swap');
 
         :root {
-            --bg-deep: #050508;
-            --panel-bg: rgba(20, 20, 35, 0.6);
-            --accent-main: #4facfe;
-            --accent-sec: #00f2fe;
-            --danger: #ff4b4b;
-            --gold: #ffd700;
-            --energy: #a6c0fe;
-            --font-main: 'Exo 2', sans-serif;
-            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --bg-color: #050508;
+            --panel-bg: rgba(20, 20, 30, 0.95);
+            --accent: #00f3ff;
+            --danger: #ff0055;
+            --text-color: #fff;
+            --energy-col: #ffcc00;
         }
 
         body {
-            background-color: var(--bg-deep);
-            color: white;
-            margin: 0; overflow: hidden;
-            font-family: var(--font-main);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             height: 100vh;
             touch-action: none;
-            user-select: none; -webkit-user-select: none;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: background-color 1s ease; /* Arka plan renk geçişi */
         }
 
-        /* --- BACKGROUND --- */
-        #nebula-canvas {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
-        }
-        .vignette {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 40%, #000 100%);
-            z-index: -1; pointer-events: none;
-        }
-
-        /* --- HUD (HEADS UP DISPLAY) --- */
-        #ui-layer {
-            position: relative; width: 100%; max-width: 500px; height: 100%;
-            display: flex; flex-direction: column; justify-content: space-between;
-            padding: 20px 10px; box-sizing: border-box; z-index: 10;
+        /* --- BACKGROUND FX --- */
+        #bg-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.3;
         }
 
-        .top-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 15px; background: var(--panel-bg);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-radius: 16px; border: var(--glass-border);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        /* --- UI ELEMENTS --- */
+        #top-bar {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column; /* Değişiklik: Level bar için dikey yapı */
+            background: var(--panel-bg);
+            border-bottom: 2px solid var(--accent);
+            padding: 10px 20px;
+            box-sizing: border-box;
+            z-index: 10;
+            border-radius: 0 0 15px 15px;
         }
 
-        .stat-group { display: flex; flex-direction: column; }
-        .stat-label { font-size: 10px; color: var(--accent-main); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
-        .stat-value { font-size: 22px; font-weight: 900; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+        }
 
-        /* XP BAR */
+        .score-group { display: flex; gap: 15px; }
+        
+        .score-card {
+            text-align: center;
+        }
+
+        .label { font-size: 8px; color: var(--accent); margin-bottom: 4px; opacity: 0.8; letter-spacing: 1px; }
+        .value { font-size: 14px; color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+
+        #settings-btn {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 243, 255, 0.2);
+        }
+
+        /* Level Bar */
         .xp-container {
-            position: absolute; bottom: -2px; left: 0; width: 100%; height: 4px;
-            background: rgba(255,255,255,0.1); border-radius: 0 0 16px 16px; overflow: hidden;
+            width: 100%; height: 6px; background: #333; margin-top: 10px; border-radius: 3px; position: relative; overflow: hidden;
         }
-        #xp-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-main), var(--accent-sec)); transition: width 0.5s ease; }
+        .xp-fill {
+            height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), #fff);
+            transition: width 0.3s;
+        }
+        .level-text { font-size: 10px; color: #fff; margin-top: 5px; text-align: center; font-family: 'Rajdhani', sans-serif; font-weight: bold; }
 
-        .menu-btn {
-            width: 40px; height: 40px; border-radius: 12px; border: none;
-            background: rgba(255,255,255,0.1); color: #fff; cursor: pointer;
-            transition: 0.2s; display: grid; place-items: center;
+        /* --- GAME CONTAINER --- */
+        #game-container {
+            position: relative;
+            margin: 5px 0;
+            flex-grow: 1; /* Mobilde alan kaplasın */
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; max-width: 500px;
         }
-        .menu-btn:active { transform: scale(0.9); background: var(--accent-main); }
-        .menu-btn svg { width: 22px; height: 22px; fill: currentColor; }
 
-        /* --- GAME AREA --- */
-        #game-area {
-            flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;
-        }
         canvas#gameCanvas {
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            background: rgba(10, 10, 18, 0.85);
-            border: 1px solid rgba(255,255,255,0.05);
+            background-color: rgba(21, 21, 30, 0.8);
+            border-radius: 16px;
+            display: block;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
         }
 
-        /* --- SKILLS BAR (NEW!) --- */
-        .skills-bar {
-            display: flex; gap: 15px; margin-top: 15px; width: 100%; max-width: 360px;
-            justify-content: center; opacity: 1; transition: opacity 0.3s;
+        /* --- SKILLS BAR --- */
+        .skills-container {
+            width: 100%; max-width: 500px;
+            display: flex; justify-content: space-around;
+            padding: 10px; box-sizing: border-box;
+            z-index: 10;
         }
-        .skills-bar.disabled { opacity: 0.5; pointer-events: none; }
 
         .skill-btn {
+            background: rgba(20,20,30,0.9);
+            border: 1px solid #444;
+            color: #fff;
+            padding: 10px;
+            width: 45%;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-family: 'Rajdhani', sans-serif;
+            transition: 0.2s;
             position: relative;
-            width: 60px; height: 60px;
-            background: linear-gradient(145deg, #1e1e24, #141418);
-            border: 1px solid #333; border-radius: 16px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #666; cursor: pointer; transition: 0.2s;
             overflow: hidden;
         }
-        .skill-btn.ready { color: #fff; border-color: var(--accent-sec); box-shadow: 0 0 15px rgba(79, 172, 254, 0.2); }
-        .skill-btn:active.ready { transform: translateY(2px); }
+        .skill-btn.active { border-color: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        .skill-btn.smash-active { border-color: var(--danger); box-shadow: 0 0 15px var(--danger); }
+        .skill-btn:active { transform: scale(0.95); }
         
-        .skill-icon { font-size: 20px; margin-bottom: 2px; }
-        .skill-cost { font-size: 9px; font-weight: bold; }
+        .skill-icon { font-size: 18px; margin-bottom: 2px; }
+        .skill-name { font-weight: bold; font-size: 14px; }
+        .skill-cost { font-size: 10px; color: var(--energy-col); font-weight: bold; }
+
+        /* --- MODAL --- */
+        #settings-modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(5px);
+            z-index: 100; display: none; justify-content: center; align-items: center;
+        }
+        #settings-modal.active { display: flex; }
+
+        .modal-content {
+            background: #15151e; padding: 30px; border-radius: 20px;
+            border: 1px solid var(--accent); width: 85%; max-width: 340px; text-align: center;
+        }
+        .modal-title { margin-bottom: 25px; color: var(--accent); font-size: 20px; }
+        .setting-row { margin-bottom: 20px; text-align: left; font-family: 'Rajdhani', sans-serif; font-weight: 700; color: #ddd; }
         
-        .skill-fill {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 0%;
-            background: rgba(79, 172, 254, 0.2); transition: height 0.3s; pointer-events: none;
+        .close-btn {
+            background: var(--accent); border: none; padding: 15px 40px;
+            color: #050508; font-family: 'Press Start 2P', cursive; font-size: 12px;
+            border-radius: 8px; cursor: pointer; margin-top: 10px;
         }
 
-        /* --- OVERLAYS --- */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            z-index: 100; display: none; opacity: 0; transition: opacity 0.3s;
-            flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        .dev-link {
+            display: block; margin-top: 20px; font-size: 10px; color: #888; text-decoration: none;
+            font-family: 'Press Start 2P'; border-bottom: 1px dashed #444; padding-bottom: 5px;
         }
-        .overlay.active { display: flex; opacity: 1; }
+        .dev-link:hover { color: var(--accent); border-color: var(--accent); }
 
-        .panel {
-            background: rgba(20, 20, 25, 0.9); border: 1px solid rgba(255,255,255,0.1);
-            padding: 30px; border-radius: 24px; width: 85%; max-width: 350px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        /* --- GAME OVER --- */
+        #game-over {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(13, 13, 18, 0.95); border-radius: 16px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        #game-over.active { opacity: 1; pointer-events: all; }
+
+        .float-msg {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 24px; color: #ffd700; text-shadow: 2px 2px 0 #000;
+            pointer-events: none; opacity: 0; transition: 0.5s; z-index: 60; white-space: nowrap;
+        }
+        .float-msg.anim { animation: popUp 1s forwards; }
+
+        @keyframes popUp {
+            0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -100%) scale(1); opacity: 0; }
         }
 
-        h2 { font-weight: 300; letter-spacing: 2px; margin: 0 0 20px 0; color: var(--accent-sec); }
-        h1.game-over-title { font-size: 40px; color: var(--danger); margin: 0; font-weight: 900; }
-        
-        .btn-primary {
-            background: linear-gradient(90deg, var(--accent-main), var(--accent-sec));
-            color: #000; font-weight: 800; border: none; padding: 15px 40px;
-            border-radius: 50px; font-size: 16px; margin-top: 20px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4); transition: 0.2s; text-transform: uppercase;
-        }
-        .btn-primary:active { transform: scale(0.95); }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0;
-        }
-        .stat-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; }
-        .stat-box span { display: block; }
-        .sb-lbl { font-size: 10px; color: #888; }
-        .sb-val { font-size: 16px; font-weight: bold; color: #fff; }
-
-        /* Floating Text */
-        .floating {
-            position: absolute; pointer-events: none;
-            font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            animation: floatUp 1s forwards; z-index: 50;
-        }
-        @keyframes floatUp { 0% { transform:translateY(0) scale(0.8); opacity:0; } 50% { opacity:1; transform:translateY(-20px) scale(1.2); } 100% { transform:translateY(-50px) scale(1); opacity:0; } }
-
-        .social-link {
-            display: inline-block; margin-top: 20px; font-size: 12px; color: #666; text-decoration: none;
-            border-bottom: 1px solid transparent; transition: 0.3s;
-        }
-        .social-link:hover { color: var(--accent-main); border-color: var(--accent-main); }
-
+        /* SEO HIDDEN TEXT */
+        .seo-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
     </style>
 </head>
 <body>
 
-    <canvas id="nebula-canvas"></canvas>
-    <div class="vignette"></div>
+    <div class="seo-hidden">
+        <h1>Neon Block Blast - Zeka ve Strateji Oyunu</h1>
+        <p>En iyi blok yerleştirme oyunu. Tetris benzeri mekanikler, yetenek sistemi (Reroll, Smash), level atlama sistemi ve muhteşem neon grafikler. @frkhnci tarafından geliştirildi. Ücretsiz oyna.</p>
+    </div>
 
-    <div id="ui-layer">
-        <div class="top-bar">
-            <div class="stat-group">
-                <span class="stat-label">SKOR</span>
-                <span class="stat-value" id="score">0</span>
-            </div>
-            <div class="stat-group" style="align-items: center;">
-                <span class="stat-label">LEVEL <span id="lvl-num" style="color:#fff">1</span></span>
-                <div style="width: 80px; height: 4px; background:rgba(255,255,255,0.1); margin-top:5px; border-radius:2px;">
-                    <div id="xp-bar-mini" style="width:0%; height:100%; background:var(--accent-sec); transition:width 0.3s;"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="top-bar">
+        <div class="header-row">
+            <div class="score-group">
+                <div class="score-card">
+                    <div class="label">PUAN</div>
+                    <div class="value" id="score">0</div>
+                </div>
+                <div class="score-card">
+                    <div class="label">REKOR</div>
+                    <div class="value" id="high-score">0</div>
                 </div>
             </div>
-            <button class="menu-btn" onclick="toggleMenu()">
-                <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-            </button>
-        </div>
-
-        <div id="game-area">
-            <canvas id="gameCanvas"></canvas>
             
-            <div class="skills-bar" id="skills-container">
-                <div class="skill-btn" id="btn-reroll" onclick="game.useSkill('reroll')">
-                    <div class="skill-fill" id="fill-reroll"></div>
-                    <div class="skill-icon">♻️</div>
-                    <div class="skill-cost">50 ENERJİ</div>
-                </div>
-                <div class="skill-btn" id="btn-smash" onclick="game.activateSmashMode()">
-                    <div class="skill-fill" id="fill-smash"></div>
-                    <div class="skill-icon">🔨</div>
-                    <div class="skill-cost">100 ENERJİ</div>
-                </div>
+            <div style="text-align:right">
+                <div class="label" style="color:var(--energy-col)">ENERJİ: <span id="energy-val">0</span></div>
             </div>
+
+            <button id="settings-btn" onclick="toggleSettings()">AYAR</button>
+        </div>
+        
+        <div class="xp-container">
+            <div class="xp-fill" id="xp-bar"></div>
+        </div>
+        <div class="level-text">LEVEL <span id="level-val">1</span></div>
+    </div>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="floating-text" class="float-msg">LEVEL UP!</div>
+        
+        <div id="game-over">
+            <h1 style="color:var(--danger); margin-bottom:10px; text-shadow: 0 0 20px var(--danger);">BİTTİ</h1>
+            <p style="color:#aaa; font-size:10px;">TOPLAM SKOR</p>
+            <p id="final-score" style="color:#fff; font-size:24px; margin:15px 0;">0</p>
+            <button class="close-btn" onclick="game.restart()">TEKRAR OYNA</button>
         </div>
     </div>
 
-    <div id="menu-overlay" class="overlay">
-        <div class="panel">
-            <h2>İSTATİSTİKLER</h2>
-            
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <span class="sb-lbl">EN YÜKSEK SKOR</span>
-                    <span class="sb-val" id="st-high">0</span>
-                </div>
-                <div class="stat-box">
-                    <span class="sb-lbl">TOPLAM SEVİYE</span>
-                    <span class="sb-val" id="st-lvl">1</span>
-                </div>
-                <div class="stat-box">
-                    <span class="sb-lbl">YOK EDİLEN BLOK</span>
-                    <span class="sb-val" id="st-blocks">0</span>
-                </div>
-                <div class="stat-box">
-                    <span class="sb-lbl">OYUN SAYISI</span>
-                    <span class="sb-val" id="st-games">0</span>
-                </div>
-            </div>
-
-            <div style="text-align:left; margin: 20px 0;">
-                <label style="font-size:12px; color:#aaa; display:block; margin-bottom:5px;">SES SEVİYESİ</label>
-                <input type="range" style="width:100%; accent-color:var(--accent-main);" oninput="setVolume(this.value)" value="50">
-            </div>
-
-            <button class="btn-primary" onclick="toggleMenu()">DEVAM ET</button>
-            <br>
-            <a href="https://www.instagram.com/frkhnci/?hl=tr" target="_blank" class="social-link">Design by @frkhnci</a>
+    <div class="skills-container">
+        <div class="skill-btn" id="btn-reroll" onclick="game.useSkill('reroll')">
+            <div class="skill-icon">♻️</div>
+            <div class="skill-name">REROLL</div>
+            <div class="skill-cost">50 ENERJİ</div>
+        </div>
+        <div class="skill-btn" id="btn-smash" onclick="game.useSkill('smash')">
+            <div class="skill-icon">🔨</div>
+            <div class="skill-name">SMASH</div>
+            <div class="skill-cost">100 ENERJİ</div>
         </div>
     </div>
 
-    <div id="gameover-overlay" class="overlay">
-        <div class="panel">
-            <h1 class="game-over-title">KRİTİK HATA</h1>
-            <p style="color:#888; margin-bottom:20px;">SİSTEM KİLİTLENDİ</p>
+    <div id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-title">AYARLAR</div>
             
-            <div style="font-size:40px; font-weight:900; color:#fff; margin: 20px 0;" id="go-score">0</div>
+            <div class="setting-row">
+                <div style="display:flex; justify-content:space-between;">
+                    <span>MÜZİK</span>
+                    <span id="music-status" style="color:var(--accent)">KAPALI</span>
+                </div>
+                <input type="checkbox" id="chk-music" onchange="toggleMusic(this.checked)" style="margin-top:10px; transform:scale(1.5);">
+            </div>
+
+            <div class="setting-row">
+                <div style="display:flex; justify-content:space-between;">
+                    <span>DOKUNMA AYARI</span>
+                </div>
+                <input type="range" id="rng-offset" min="0" max="150" value="100" style="width:100%; margin-top:10px;" oninput="updateOffset(this.value)">
+                <div style="font-size:10px; color:#666; margin-top:5px;">Parmağın bloğu kapatmaması için.</div>
+            </div>
+
+            <button class="close-btn" onclick="toggleSettings()">DEVAM ET</button>
             
-            <button class="btn-primary" onclick="game.restart()">SİSTEMİ YENİLE</button>
+            <a href="https://www.instagram.com/frkhnci/?hl=tr" target="_blank" class="dev-link">Developer: @frkhnci</a>
         </div>
     </div>
 
 <script>
 /**
- * --- COSMIC AUDIO ENGINE (Procedural Synth) ---
- * Harici dosya yok. Tarayıcının kendi synthesizer'ı.
+ * --- RHYTHMIC TECHNO AUDIO ENGINE (Code Generated) ---
  */
-const AudioSys = {
-    ctx: null, vol: 0.5,
+const AudioEngine = {
+    ctx: null, vol: 0.5, isPlaying: false, interval: null, beat: 0,
     init: function() {
+        if(this.ctx) return;
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         this.ctx = new AudioContext();
     },
-    playTone: function(freq, type, dur, time=0) {
-        if(!this.ctx || this.vol <= 0.01) return;
-        const t = this.ctx.currentTime + time;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = type; osc.frequency.value = freq;
-        osc.connect(gain); gain.connect(this.ctx.destination);
-        
-        osc.start(t); osc.stop(t+dur);
-        gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(this.vol * 0.3, t + dur*0.1);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + dur);
-    },
-    // Spacey Chord
-    playPlace: function() {
-        // Pentatonic Scale random note
-        const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
-        const f = notes[Math.floor(Math.random()*notes.length)];
-        this.playTone(f, 'sine', 0.3);
-        this.playTone(f*1.5, 'triangle', 0.3, 0.05); // Echo effect
-    },
-    playClear: function(count) {
-        // Satisfaction Arpeggio
-        const base = 440 + (count*50);
-        this.playTone(base, 'sine', 0.2, 0);
-        this.playTone(base*1.25, 'sine', 0.2, 0.1);
-        this.playTone(base*1.5, 'sine', 0.4, 0.2);
-    },
-    playSkill: function() {
-        this.playTone(880, 'square', 0.1, 0);
-        this.playTone(440, 'sawtooth', 0.3, 0.1);
-    },
-    playError: function() {
-        this.playTone(150, 'sawtooth', 0.3);
-        if(navigator.vibrate) navigator.vibrate(200);
-    }
-};
-
-/**
- * --- DATA MANAGER (PERSISTENCE) ---
- */
-const DataMgr = {
-    stats: {
-        highScore: 0, totalLvl: 1, currentXp: 0, totalBlocks: 0, totalGames: 0
-    },
-    load: function() {
-        const d = localStorage.getItem('cosmic_save_v1');
-        if(d) this.stats = JSON.parse(d);
-        this.updateUI();
-    },
-    save: function() {
-        localStorage.setItem('cosmic_save_v1', JSON.stringify(this.stats));
-        this.updateUI();
-    },
-    addXp: function(amount) {
-        this.stats.currentXp += amount;
-        const nextLvl = this.stats.totalLvl * 500; // Basit level formülü
-        if(this.stats.currentXp >= nextLvl) {
-            this.stats.currentXp -= nextLvl;
-            this.stats.totalLvl++;
-            GameUI.showFloatingText("LEVEL UP!", window.innerWidth/2, window.innerHeight/2, '#ffd700');
-            AudioSys.playClear(5); // Big sound
+    toggle: function(on) {
+        this.init(); this.isPlaying = on;
+        if(on) {
+            if(this.ctx.state === 'suspended') this.ctx.resume();
+            this.interval = setInterval(() => this.playBeat(), 500); // 120 BPM
+            document.getElementById('music-status').innerText = "AÇIK";
+        } else {
+            clearInterval(this.interval);
+            document.getElementById('music-status').innerText = "KAPALI";
         }
-        this.save();
     },
-    updateUI: function() {
-        document.getElementById('st-high').innerText = this.stats.highScore;
-        document.getElementById('st-lvl').innerText = this.stats.totalLvl;
-        document.getElementById('st-blocks').innerText = this.stats.totalBlocks;
-        document.getElementById('st-games').innerText = this.stats.totalGames;
-        document.getElementById('lvl-num').innerText = this.stats.totalLvl;
-        
-        const nextLvl = this.stats.totalLvl * 500;
-        const pct = (this.stats.currentXp / nextLvl) * 100;
-        document.getElementById('xp-bar-mini').style.width = pct + '%';
+    playBeat: function() {
+        const t = this.ctx.currentTime;
+        // Kick
+        this.tone(100, 'sine', 0.1, t, 0.6);
+        this.tone(60, 'square', 0.1, t, 0.3);
+        // Hi-hat offbeat
+        if(this.beat%2!==0) this.noise(t, 0.05);
+        // Bassline
+        const bass = [55, 65, 55, 73];
+        this.tone(bass[this.beat%4], 'sawtooth', 0.2, t+0.25, 0.2);
+        this.beat++;
+    },
+    tone: function(f, type, d, t, v) {
+        const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+        o.type=type; o.frequency.value=f;
+        o.connect(g); g.connect(this.ctx.destination);
+        o.start(t); o.stop(t+d);
+        g.gain.setValueAtTime(v*this.vol, t);
+        g.gain.exponentialRampToValueAtTime(0.01, t+d);
+    },
+    noise: function(t, d) {
+        const b=this.ctx.createBuffer(1,this.ctx.sampleRate*d,this.ctx.sampleRate), dt=b.getChannelData(0);
+        for(let i=0;i<dt.length;i++) dt[i]=Math.random()*2-1;
+        const s=this.ctx.createBufferSource(), g=this.ctx.createGain();
+        s.buffer=b; s.connect(g); g.connect(this.ctx.destination);
+        g.gain.value=this.vol*0.1; s.start(t);
     }
 };
 
-/**
- * --- GAME ENGINE ---
- */
-class GameEngine {
+const SFX = {
+    ctx: null,
+    init: function() { 
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioContext(); 
+    },
+    play: function(type) {
+        if(!this.ctx) this.init();
+        if(this.ctx.state === 'suspended') this.ctx.resume();
+        const t = this.ctx.currentTime;
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.connect(g); g.connect(this.ctx.destination);
+
+        if(type==='pickup') {
+            o.frequency.setValueAtTime(300,t); o.frequency.linearRampToValueAtTime(500,t+0.1);
+            g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.1);
+            o.start(t); o.stop(t+0.1);
+        } else if(type==='drop') {
+            o.frequency.setValueAtTime(200,t); o.frequency.exponentialRampToValueAtTime(50,t+0.15);
+            g.gain.setValueAtTime(0.2,t); g.gain.linearRampToValueAtTime(0,t+0.15);
+            o.start(t); o.stop(t+0.15);
+        } else if(type==='clear') {
+            o.type='square'; o.frequency.setValueAtTime(600,t); o.frequency.linearRampToValueAtTime(1200,t+0.1);
+            g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.15);
+            o.start(t); o.stop(t+0.15);
+        } else if(type==='gameover') {
+            o.type='sawtooth'; o.frequency.setValueAtTime(400,t); o.frequency.linearRampToValueAtTime(20,t+1.5);
+            g.gain.setValueAtTime(0.3,t); g.gain.linearRampToValueAtTime(0,t+1.5);
+            o.start(t); o.stop(t+1.5);
+        } else if(type==='skill') {
+            o.type='square'; o.frequency.setValueAtTime(800,t); o.frequency.linearRampToValueAtTime(400,t+0.2);
+            g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.2);
+            o.start(t); o.stop(t+0.2);
+        }
+    }
+};
+
+/* GLOBAL VARS */
+let touchOffset = 100;
+let isPaused = false;
+
+function toggleSettings() {
+    const m = document.getElementById('settings-modal');
+    m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+    isPaused = m.style.display === 'flex';
+    if(!isPaused) game.loop();
+}
+function toggleMusic(chk) { AudioEngine.toggle(chk); }
+function updateOffset(val) { touchOffset = parseInt(val); }
+
+/* --- BACKGROUND FX --- */
+const bgC=document.getElementById('bg-canvas'), bgCtx=bgC.getContext('2d');
+let bgOff=0;
+function drawBg() {
+    if(isPaused) return;
+    bgC.width=window.innerWidth; bgC.height=window.innerHeight;
+    bgCtx.clearRect(0,0,bgC.width,bgC.height);
+    bgCtx.strokeStyle='rgba(0, 243, 255, 0.05)';
+    bgOff=(bgOff+0.5)%40;
+    bgCtx.beginPath();
+    for(let x=0; x<bgC.width; x+=40) { bgCtx.moveTo(x,0); bgCtx.lineTo(x,bgC.height); }
+    for(let y=bgOff; y<bgC.height; y+=40) { bgCtx.moveTo(0,y); bgCtx.lineTo(bgC.width,y); }
+    bgCtx.stroke();
+    requestAnimationFrame(drawBg);
+}
+drawBg();
+
+/* --- GAME LOGIC --- */
+const CONSTANTS = { GRID: 8, COLORS: ['#FF0055', '#00FF99', '#00CCFF', '#FFFF00', '#FF6600', '#CC33FF'] };
+const BG_COLORS = ['#050508', '#1a0b1a', '#0b1a1a', '#1a1a0b', '#000000'];
+
+const SHAPES = [
+    [[1]], [[1,1]], [[1,1,1]], [[1,1,1,1]], 
+    [[1,1],[1,1]], [[1,1,1],[0,1,0]], 
+    [[1,1,1],[1,0,0]], [[1,1,0],[0,1,1]], 
+    [[1,1],[1,0]]
+];
+
+class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.grid = Array(8).fill().map(() => Array(8).fill(null));
+        this.grid = Array(8).fill().map(()=>Array(8).fill(null));
         this.hand = [null,null,null];
-        this.score = 0;
-        this.energy = 0; // Skill currency
-        this.dragged = null;
+        this.score = 0; this.highScore = localStorage.getItem('nbb_v5_hs')||0;
+        this.level = 1; this.xp = 0; this.energy = 0;
+        this.dragged = null; this.dragOff = {x:0,y:0};
         this.smashMode = false;
         
-        // Colors (Cosmic Palette)
-        this.colors = ['#4facfe', '#00f2fe', '#f093fb', '#f5576c', '#43e97b'];
-        
         this.resize();
-        window.addEventListener('resize', () => { this.resize(); this.repositionHand(); });
-        this.bindInput();
+        window.addEventListener('resize', ()=>{this.resize(); this.reposHand();});
+        this.bindEvents();
+        this.updateUI();
         this.spawnShapes();
         this.loop();
     }
 
     resize() {
-        const uiH = document.getElementById('ui-layer').offsetHeight;
-        const topH = document.querySelector('.top-bar').offsetHeight;
-        const botH = document.getElementById('skills-container').offsetHeight;
-        
-        const maxW = Math.min(window.innerWidth - 20, 480);
-        // Calculate available height for canvas
-        const availH = window.innerHeight - topH - botH - 60;
+        // Mobil uyumlu boyutlandırma
+        const maxW = Math.min(window.innerWidth - 20, 500);
+        // Header(100) + Skills(80) + Padding(20) = ~200px
+        const availH = window.innerHeight - 200;
         
         let w = maxW;
-        let h = w * 1.3; // Aspect ratio
-        if(h > availH) { h = availH; w = h / 1.3; }
+        let h = w * 1.4;
+        if(h > availH) { h = availH; w = h / 1.4; }
 
         this.canvas.width = w; this.canvas.height = h;
-        
-        this.gap = 4;
-        const pad = 12;
-        this.cellSize = (w - (pad*2) - (7*this.gap)) / 8;
+        this.gap = 4; const pad=12;
+        const gw = w - (pad*2);
+        this.cellSize = (gw - (7*this.gap)) / 8;
         this.gridX = pad; this.gridY = 20;
     }
 
-    repositionHand() {
+    reposHand() {
         const zw = this.canvas.width/3;
         const hy = this.canvas.height - (this.cellSize*2.5);
-        this.hand.forEach((h,i) => {
-            if(h && h !== this.dragged) { h.x = zw*i + zw/2; h.y = hy; }
-        });
+        this.hand.forEach((h,i)=>{ if(h && h!==this.dragged){ h.x=zw*i+zw/2; h.y=hy; } });
     }
 
-    // --- LOGIC ---
-    spawnShapes() {
-        const zw = this.canvas.width/3;
-        const hy = this.canvas.height - (this.cellSize*2.5);
-        
-        // Fair Randomizer (Bag System)
-        if(!this.bag || this.bag.length === 0) {
-            const shapes = [
-                [[1]], [[1,1]], [[1,1,1]], [[1,1,1,1]], [[1,1],[1,1]],
-                [[1,1,1],[0,1,0]], [[1,1,1],[1,0,0]], [[1,1,0],[0,1,1]],
-                [[1,1],[1,0]], [[1,1,1],[0,0,1],[0,0,1]]
-            ];
-            this.bag = [...shapes, ...shapes]; // Double pool
-            this.bag.sort(() => Math.random() - 0.5);
-        }
+    changeBg() {
+        document.body.style.backgroundColor = BG_COLORS[(this.level-1)%BG_COLORS.length];
+    }
 
-        for(let i=0; i<3; i++) {
+    spawnShapes() {
+        const zw=this.canvas.width/3, hy=this.canvas.height-(this.cellSize*2.5);
+        for(let i=0;i<3;i++) {
             if(!this.hand[i]) {
-                let m = this.bag.pop();
-                // Random rotate
-                const r = Math.floor(Math.random()*4);
-                for(let k=0;k<r;k++) m = m[0].map((val, index) => m.map(row => row[index]).reverse());
-                
+                const m = SHAPES[Math.floor(Math.random()*SHAPES.length)];
                 this.hand[i] = {
-                    data: m,
-                    color: this.colors[Math.floor(Math.random()*this.colors.length)],
-                    x: zw*i + zw/2, y: hy, scale: 0.55, orgIdx: i
+                    data:m, color:CONSTANTS.COLORS[Math.floor(Math.random()*CONSTANTS.COLORS.length)],
+                    x:zw*i+zw/2, y:hy, scale:0.6, idx:i
                 };
             }
         }
-        if(this.checkGameOver()) this.doGameOver();
+        this.reposHand();
+        if(this.checkGO()) setTimeout(()=>this.triggerGO(),500);
     }
 
-    // --- SKILL SYSTEM ---
-    updateEnergy(amount) {
-        this.energy = Math.min(100, this.energy + amount);
-        // UI Updates
-        document.getElementById('fill-reroll').style.height = (Math.min(this.energy, 50)/50 * 100) + '%';
-        document.getElementById('fill-smash').style.height = (this.energy/100 * 100) + '%';
-        
-        document.getElementById('btn-reroll').classList.toggle('ready', this.energy >= 50);
-        document.getElementById('btn-smash').classList.toggle('ready', this.energy >= 100);
-    }
-
+    // --- SKILLS ---
     useSkill(type) {
-        if(type === 'reroll' && this.energy >= 50) {
-            AudioSys.playSkill();
-            this.energy -= 50;
-            this.hand = [null,null,null];
-            this.spawnShapes();
-            GameUI.showFloatingText("REROLL!", this.canvas.width/2, this.canvas.height/2, '#fff');
-            this.updateEnergy(0);
+        if(type==='reroll') {
+            if(this.energy>=50) {
+                this.energy-=50; this.hand=[null,null,null]; this.spawnShapes();
+                this.floatText("REROLL!"); SFX.play('skill');
+            }
+        } else if(type==='smash') {
+            if(this.energy>=100) {
+                this.smashMode = !this.smashMode;
+                const btn = document.getElementById('btn-smash');
+                if(this.smashMode) { btn.classList.add('smash-active'); this.floatText("SMASH MODE!"); }
+                else { btn.classList.remove('smash-active'); }
+            }
         }
+        this.updateUI();
     }
 
-    activateSmashMode() {
-        if(this.energy >= 100) {
-            this.smashMode = !this.smashMode;
-            document.getElementById('btn-smash').style.borderColor = this.smashMode ? '#ff0000' : '#333';
-            GameUI.showFloatingText(this.smashMode ? "HAMMER READY" : "CANCELLED", this.canvas.width/2, this.canvas.height/2, '#ff4b4b');
-        }
-    }
-
-    executeSmash(r, c) {
+    execSmash(r,c) {
         if(this.grid[r][c]) {
             this.grid[r][c] = null;
             this.energy -= 100;
             this.smashMode = false;
-            document.getElementById('btn-smash').style.borderColor = '#333';
-            AudioSys.playClear(1);
-            Nebula.spawnExplosion(this.gridX + c*(this.cellSize+this.gap), this.gridY + r*(this.cellSize+this.gap), '#ff4b4b');
-            this.updateEnergy(0);
+            document.getElementById('btn-smash').classList.remove('smash-active');
+            SFX.play('gameover'); // Parçalanma sesi
+            this.floatText("SMASHED!");
+            this.updateUI();
         }
     }
 
-    // --- RENDER LOOP ---
+    // --- LOOP ---
     loop() {
-        this.update();
-        this.draw();
-        requestAnimationFrame(()=>this.loop());
-    }
-
-    update() {
-        // Smooth UI score
-        const el = document.getElementById('score');
-        const cur = parseInt(el.innerText);
-        if(cur < this.score) el.innerText = Math.ceil(cur + (this.score-cur)*0.1);
+        if(!isPaused) { this.draw(); requestAnimationFrame(()=>this.loop()); }
     }
 
     draw() {
-        this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        
+        // Grid
+        const tw = (8*(this.cellSize+this.gap))-this.gap;
+        this.ctx.fillStyle = 'rgba(30,30,40,0.8)';
+        this.ctx.fillRect(this.gridX-5, this.gridY-5, tw+10, tw+10); // Simple rect
 
-        // Grid Background
-        this.ctx.fillStyle = 'rgba(255,255,255,0.02)';
-        const boardSize = (8 * (this.cellSize + this.gap));
-        this.ctx.fillRect(this.gridX-5, this.gridY-5, boardSize+5, boardSize+5);
-
-        // Blocks
-        for(let r=0; r<8; r++) for(let c=0; c<8; c++) {
-            const x = this.gridX + c*(this.cellSize+this.gap);
-            const y = this.gridY + r*(this.cellSize+this.gap);
-            
-            // Empty Cell
-            this.ctx.fillStyle = this.smashMode ? 'rgba(255,0,0,0.1)' : 'rgba(30,30,40,0.5)';
-            this.drawRoundedRect(x,y,this.cellSize,this.cellSize,4);
-            this.ctx.fill();
-
-            if(this.grid[r][c]) {
-                this.drawBlock(x,y,this.cellSize, this.grid[r][c]);
-            }
+        for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+            const x=this.gridX+c*(this.cellSize+this.gap);
+            const y=this.gridY+r*(this.cellSize+this.gap);
+            this.ctx.fillStyle = this.smashMode ? 'rgba(255,0,0,0.1)' : '#22222b';
+            this.ctx.fillRect(x,y,this.cellSize,this.cellSize);
+            if(this.grid[r][c]) this.drawBlock(x,y,this.cellSize,this.grid[r][c]);
         }
 
         // Ghost
         if(this.dragged && !this.smashMode) {
-            const pos = this.getGridPos(this.dragged.x, this.dragged.y);
-            if(pos && this.canPlace(this.dragged.data, pos.r, pos.c)) {
-                this.ctx.globalAlpha = 0.3;
-                this.drawShapeGrid(this.dragged.data, pos.r, pos.c, '#fff');
-                this.ctx.globalAlpha = 1;
+            const p = this.getGridPos(this.dragged.x, this.dragged.y);
+            if(p && this.canPlace(this.dragged.data, p.r, p.c)) {
+                this.ctx.globalAlpha=0.3;
+                this.drawShapeGrid(this.dragged.data, p.r, p.c, this.dragged.color);
+                this.ctx.globalAlpha=1;
             }
         }
 
-        // Hand
-        this.hand.forEach(h => { if(h && h!==this.dragged) this.drawShapeFree(h); });
+        this.hand.forEach(h=>{ if(h && h!==this.dragged) this.drawShapeFree(h); });
         if(this.dragged) this.drawShapeFree(this.dragged);
     }
 
     drawBlock(x,y,s,c) {
-        // Premium Look: Gradient + Inner Glow + No harsh outlines
-        const grd = this.ctx.createLinearGradient(x,y,x+s,y+s);
-        grd.addColorStop(0, c);
-        grd.addColorStop(1, adjustColor(c, -40));
-        
-        this.ctx.fillStyle = grd;
-        // Soft Glow
-        this.ctx.shadowColor = c;
-        this.ctx.shadowBlur = 15; 
-        
-        this.drawRoundedRect(x+1,y+1,s-2,s-2, 6);
-        this.ctx.fill();
-        
-        this.ctx.shadowBlur = 0;
-        
-        // Highlight (Glass effect)
-        this.ctx.fillStyle = 'rgba(255,255,255,0.2)';
-        this.ctx.beginPath();
-        this.ctx.ellipse(x+s*0.3, y+s*0.2, s*0.15, s*0.08, Math.PI/4, 0, Math.PI*2);
-        this.ctx.fill();
+        this.ctx.fillStyle=c; this.ctx.fillRect(x,y,s,s);
+        this.ctx.shadowColor=c; this.ctx.shadowBlur=10; 
+        this.ctx.fillStyle='rgba(255,255,255,0.4)'; this.ctx.fillRect(x+3,y+3,s/3,s/3);
+        this.ctx.shadowBlur=0;
     }
 
     drawShapeFree(s) {
-        const sc = s === this.dragged ? 1 : s.scale;
-        const m = s.data;
-        const w = m[0].length*this.cellSize*sc + (m[0].length-1)*this.gap*sc;
-        const h = m.length*this.cellSize*sc + (m.length-1)*this.gap*sc;
-        
-        // Center calculation
-        const sx = s.x - w/2;
-        const sy = s.y - h/2;
-
-        for(let i=0; i<m.length; i++) for(let j=0; j<m[0].length; j++) {
-            if(m[i][j]) {
-                this.drawBlock(
-                    sx + j*(this.cellSize*sc + this.gap*sc),
-                    sy + i*(this.cellSize*sc + this.gap*sc),
-                    this.cellSize*sc, s.color
-                );
-            }
-        }
+        const sc=s===this.dragged?1:s.scale, m=s.data;
+        const w=m[0].length*this.cellSize*sc+(m[0].length-1)*this.gap*sc;
+        const h=m.length*this.cellSize*sc+(m.length-1)*this.gap*sc;
+        const sx=s.x-w/2, sy=s.y-h/2;
+        for(let r=0;r<m.length;r++) for(let c=0;c<m[0].length;c++) if(m[r][c])
+            this.drawBlock(sx+c*(this.cellSize*sc+this.gap*sc), sy+r*(this.cellSize*sc+this.gap*sc), this.cellSize*sc, s.color);
     }
-
-    drawShapeGrid(m,r,c,col) {
-        for(let i=0; i<m.length; i++) for(let j=0; j<m[0].length; j++) {
-            if(m[i][j]) {
-                const x = this.gridX + (c+j)*(this.cellSize+this.gap);
-                const y = this.gridY + (r+i)*(this.cellSize+this.gap);
-                this.ctx.fillStyle = col;
-                this.drawRoundedRect(x,y,this.cellSize,this.cellSize,4);
-                this.ctx.fill();
-            }
+    
+    drawShapeGrid(m,gr,gc,col) {
+        for(let r=0;r<m.length;r++) for(let c=0;c<m[0].length;c++) if(m[r][c]) {
+            const x=this.gridX+(gc+c)*(this.cellSize+this.gap);
+            const y=this.gridY+(gr+r)*(this.cellSize+this.gap);
+            this.drawBlock(x,y,this.cellSize,col);
         }
-    }
-
-    drawRoundedRect(x,y,w,h,r) {
-        this.ctx.beginPath();
-        this.ctx.roundRect(x,y,w,h,r);
-        this.ctx.closePath();
     }
 
     // --- INPUT ---
-    bindInput() {
-        const getP = (e) => {
-            const r = this.canvas.getBoundingClientRect();
-            const cx = e.touches?e.touches[0].clientX:e.clientX;
-            const cy = e.touches?e.touches[0].clientY:e.clientY;
-            return {x: cx-r.left, y: cy-r.top};
+    bindEvents() {
+        const getP=(e)=>{
+            const r=this.canvas.getBoundingClientRect();
+            const t=e.touches?e.touches[0]:e;
+            return {x:t.clientX-r.left, y:t.clientY-r.top};
         };
-
-        const start = (e) => {
-            AudioSys.init();
+        const start=(e)=>{
+            if(isPaused) return;
+            AudioEngine.init(); SFX.init();
+            const p=getP(e);
+            
             if(this.smashMode) {
-                const p = getP(e);
-                const gp = this.getGridPos(p.x, p.y);
-                if(gp) this.executeSmash(gp.r, gp.c);
+                const gp=this.getGridPos(p.x, p.y);
+                if(gp) this.execSmash(gp.r, gp.c);
                 return;
             }
 
-            const p = getP(e);
-            for(let i=0; i<3; i++) {
-                if(this.hand[i]) {
-                    const dx = p.x - this.hand[i].x;
-                    const dy = p.y - this.hand[i].y;
-                    if(Math.sqrt(dx*dx + dy*dy) < 80) {
-                        this.dragged = this.hand[i];
-                        this.hand[i] = null;
-                        this.dragOffsetY = e.touches ? 100 : 0;
-                        this.dragged.x = p.x; 
-                        this.dragged.y = p.y - this.dragOffsetY;
-                        break;
-                    }
+            for(let i=0;i<3;i++) if(this.hand[i]) {
+                const dx=p.x-this.hand[i].x, dy=p.y-this.hand[i].y;
+                if(dx*dx+dy*dy<5000) {
+                    this.dragged=this.hand[i]; this.hand[i]=null;
+                    this.dragOff.y=e.touches?touchOffset:0;
+                    this.dragged.x=p.x; this.dragged.y=p.y-this.dragOff.y;
+                    SFX.play('pickup');
+                    break;
                 }
             }
         };
-
-        const move = (e) => {
-            if(this.dragged) {
-                e.preventDefault();
-                const p = getP(e);
-                this.dragged.x = p.x; 
-                this.dragged.y = p.y - this.dragOffsetY;
-            }
-        };
-
-        const end = () => {
+        const move=(e)=>{
             if(!this.dragged) return;
-            const gp = this.getGridPos(this.dragged.x, this.dragged.y);
-            
+            e.preventDefault();
+            const p=getP(e);
+            this.dragged.x=p.x; this.dragged.y=p.y-this.dragOff.y;
+        };
+        const end=()=>{
+            if(!this.dragged) return;
+            const gp=this.getGridPos(this.dragged.x, this.dragged.y);
             if(gp && this.canPlace(this.dragged.data, gp.r, gp.c)) {
                 this.place(this.dragged, gp.r, gp.c);
             } else {
-                // Return
-                const zw = this.canvas.width/3;
-                this.dragged.x = zw*this.dragged.orgIdx + zw/2;
-                this.dragged.y = this.canvas.height - (this.cellSize*2.5);
-                this.hand[this.dragged.orgIdx] = this.dragged;
-                AudioSys.playError();
+                SFX.play('drop');
+                this.hand[this.dragged.idx]=this.dragged; this.reposHand();
             }
-            this.dragged = null;
+            this.dragged=null;
         };
-
-        this.canvas.addEventListener('mousedown', start);
-        window.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', end);
-        this.canvas.addEventListener('touchstart', start, {passive:false});
-        this.canvas.addEventListener('touchmove', move, {passive:false});
-        window.addEventListener('touchend', end);
+        this.canvas.addEventListener('mousedown',start); window.addEventListener('mousemove',move); window.addEventListener('mouseup',end);
+        this.canvas.addEventListener('touchstart',start,{passive:false}); this.canvas.addEventListener('touchmove',move,{passive:false}); window.addEventListener('touchend',end);
     }
 
     getGridPos(x,y) {
-        if(!this.dragged && !this.smashMode) return null;
-        const ref = this.dragged ? this.dragged.data : [[1]]; // Reference for size
-        const w = ref[0].length * this.cellSize;
-        const h = ref.length * this.cellSize;
-        const c = Math.round(((x - w/2) - this.gridX) / (this.cellSize+this.gap));
-        const r = Math.round(((y - h/2) - this.gridY) / (this.cellSize+this.gap));
-        if(c>=0 && c<8 && r>=0 && r<8) return {r,c};
+        const ref=this.dragged?this.dragged.data:[[1]]; // smash mode check
+        const w=ref[0].length*this.cellSize, h=ref.length*this.cellSize;
+        const c=Math.round(((x-w/2)-this.gridX)/(this.cellSize+this.gap));
+        const r=Math.round(((y-h/2)-this.gridY)/(this.cellSize+this.gap));
+        if(c>=0&&c<8&&r>=0&&r<8) return {r,c};
         return null;
     }
 
     canPlace(m,r,c) {
-        for(let i=0;i<m.length;i++) for(let j=0;j<m[0].length;j++) {
-            if(m[i][j]) {
-                const nr=r+i, nc=c+j;
-                if(nr<0||nr>=8||nc<0||nc>=8||this.grid[nr][nc]) return false;
-            }
+        for(let i=0;i<m.length;i++) for(let j=0;j<m[0].length;j++) if(m[i][j]) {
+            if(r+i>=8 || c+j>=8 || this.grid[r+i][c+j]) return false;
         }
         return true;
     }
 
     place(s,r,c) {
-        const m = s.data;
-        let count = 0;
-        for(let i=0;i<m.length;i++) for(let j=0;j<m[0].length;j++) {
-            if(m[i][j]) {
-                this.grid[r+i][c+j] = s.color;
-                count++;
-            }
+        const m=s.data; let cnt=0;
+        for(let i=0;i<m.length;i++) for(let j=0;j<m[0].length;j++) if(m[i][j]) {
+            this.grid[r+i][c+j]=s.color; cnt++;
         }
-        
-        AudioSys.playPlace();
-        if(navigator.vibrate) navigator.vibrate(20);
-        
-        this.score += count * 10;
-        this.updateEnergy(count * 2);
-        DataMgr.stats.totalBlocks += count;
+        SFX.play('drop');
+        this.addScore(cnt*10); 
+        this.energy = Math.min(100, this.energy+cnt); // Her blok 1 enerji
         
         this.checkLines();
-        
-        if(this.hand.every(x=>x===null)) setTimeout(()=>this.spawnShapes(), 200);
-        else if(this.checkGameOver()) setTimeout(()=>this.doGameOver(), 500);
-        
-        DataMgr.save();
+        if(this.hand.every(x=>x===null)) setTimeout(()=>this.spawnShapes(),200);
+        else if(this.checkGO()) setTimeout(()=>this.triggerGO(),500);
+        this.updateUI();
     }
 
     checkLines() {
-        let rows=[], cols=[];
-        for(let r=0;r<8;r++) if(this.grid[r].every(x=>x)) rows.push(r);
-        for(let c=0;c<8;c++) {
-            let full=true; for(let r=0;r<8;r++) if(!this.grid[r][c]) full=false;
-            if(full) cols.push(c);
-        }
-
-        const total = rows.length+cols.length;
-        if(total > 0) {
-            AudioSys.playClear(total);
-            if(navigator.vibrate) navigator.vibrate(50);
+        let lines=[];
+        for(let r=0;r<8;r++) if(this.grid[r].every(x=>x)) lines.push({t:'r',i:r});
+        for(let c=0;c<8;c++) { let f=true; for(let r=0;r<8;r++) if(!this.grid[r][c]) f=false; if(f) lines.push({t:'c',i:c}); }
+        
+        if(lines.length>0) {
+            SFX.play('clear');
+            this.energy = Math.min(100, this.energy + lines.length*10); // Hat başına enerji
+            this.addScore(lines.length*100*lines.length);
             
-            const pts = total * 100 * total;
-            this.score += pts;
-            DataMgr.addXp(pts * 0.1);
-            this.updateEnergy(total * 10);
-            
-            const msg = total > 1 ? total+"x COMBO!" : "NICE!";
-            GameUI.showFloatingText(msg, this.canvas.width/2, this.canvas.height/3, '#ffd700');
-
-            // Clear Logic
-             [...rows.map(r=>({t:'r',i:r})), ...cols.map(c=>({t:'c',i:c}))].forEach(it => {
-                if(it.t==='r') for(let c=0;c<8;c++) {
-                    if(this.grid[it.i][c]) {
-                        Nebula.spawnExplosion(this.gridX+c*(this.cellSize+this.gap), this.gridY+it.i*(this.cellSize+this.gap), this.grid[it.i][c]);
-                        this.grid[it.i][c]=null;
-                    }
-                } else for(let r=0;r<8;r++) {
-                    if(this.grid[r][it.i]) {
-                        Nebula.spawnExplosion(this.gridX+it.i*(this.cellSize+this.gap), this.gridY+r*(this.cellSize+this.gap), this.grid[r][it.i]);
-                        this.grid[r][it.i]=null;
-                    }
-                }
+            lines.forEach(l=>{
+                if(l.t==='r') for(let c=0;c<8;c++) this.grid[l.i][c]=null;
+                else for(let r=0;r<8;r++) this.grid[r][l.i]=null;
             });
+            
+            const msg = lines.length>1 ? lines.length+"X COMBO!" : "TEMİZ!";
+            this.floatText(msg);
         }
     }
 
-    checkGameOver() {
+    addScore(pts) {
+        this.score+=pts; this.xp+=pts;
+        if(this.score>this.highScore) { this.highScore=this.score; localStorage.setItem('nbb_v5_hs',this.highScore); }
+        // Level Logic: 500 XP
+        if(this.xp >= 500) {
+            this.xp -= 500; this.level++;
+            this.floatText("LEVEL UP!"); SFX.play('skill');
+            this.changeBg();
+        }
+        this.updateUI();
+    }
+
+    checkGO() {
         for(let i=0;i<3;i++) if(this.hand[i]) {
             for(let r=0;r<8;r++) for(let c=0;c<8;c++) if(this.canPlace(this.hand[i].data,r,c)) return false;
         }
-        return this.hand.every(x=>x===null) ? false : true;
+        return this.hand.every(x=>x===null)?false:true;
     }
 
-    doGameOver() {
-        DataMgr.stats.totalGames++;
-        if(this.score > DataMgr.stats.highScore) DataMgr.stats.highScore = this.score;
-        DataMgr.save();
-        document.getElementById('go-score').innerText = this.score;
-        document.getElementById('gameover-overlay').classList.add('active');
-        AudioSys.playError();
+    triggerGO() {
+        SFX.play('gameover');
+        document.getElementById('final-score').innerText=this.score;
+        document.getElementById('game-over').classList.add('active');
     }
 
     restart() {
-        this.grid = Array(8).fill().map(()=>Array(8).fill(null));
-        this.hand = [null,null,null];
-        this.score = 0;
-        this.energy = 0;
-        this.updateEnergy(0);
-        document.getElementById('gameover-overlay').classList.remove('active');
+        this.grid=Array(8).fill().map(()=>Array(8).fill(null));
+        this.hand=[null,null,null];
+        this.score=0; this.level=1; this.xp=0; this.energy=0;
+        this.updateUI(); this.changeBg();
+        document.getElementById('game-over').classList.remove('active');
         this.spawnShapes();
     }
-}
-
-/**
- * --- NEBULA BACKGROUND SYSTEM ---
- */
-const Nebula = {
-    canvas: document.getElementById('nebula-canvas'),
-    ctx: null, particles: [], stars: [],
-    init: function() {
-        this.ctx = this.canvas.getContext('2d');
-        this.resize();
-        window.addEventListener('resize', () => this.resize());
-        
-        // Create Stars
-        for(let i=0; i<50; i++) {
-            this.stars.push({
-                x: Math.random()*this.canvas.width,
-                y: Math.random()*this.canvas.height,
-                s: Math.random()*2,
-                a: Math.random()
-            });
-        }
-        this.loop();
-    },
-    resize: function() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    },
-    spawnExplosion: function(x, y, color) {
-        for(let i=0; i<8; i++) {
-            this.particles.push({
-                x, y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
-                life: 1, color: color, size: Math.random()*6+2
-            });
-        }
-    },
-    loop: function() {
-        this.ctx.fillStyle = '#050508';
-        this.ctx.fillRect(0,0,this.canvas.width, this.canvas.height);
-        
-        // Draw Stars
-        this.ctx.fillStyle = '#fff';
-        this.stars.forEach(s => {
-            s.y -= 0.2; // Slow movement
-            if(s.y < 0) s.y = this.canvas.height;
-            this.ctx.globalAlpha = s.a * 0.5;
-            this.ctx.beginPath(); this.ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); this.ctx.fill();
-        });
-
-        // Particles
-        for(let i=this.particles.length-1; i>=0; i--) {
-            let p = this.particles[i];
-            p.x += p.vx; p.y += p.vy; p.life -= 0.03;
-            if(p.life <= 0) { this.particles.splice(i,1); continue; }
-            
-            this.ctx.globalAlpha = p.life;
-            this.ctx.fillStyle = p.color;
-            this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); this.ctx.fill();
-        }
-        
-        this.ctx.globalAlpha = 1;
-        requestAnimationFrame(() => this.loop());
+    
+    floatText(txt) {
+        const el = document.getElementById('floating-text');
+        el.innerText = txt;
+        el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim');
     }
-};
 
-/**
- * --- UTILS ---
- */
-const GameUI = {
-    showFloatingText: function(text, x, y, col) {
-        const el = document.createElement('div');
-        el.className = 'floating';
-        el.innerText = text;
-        el.style.left = (x - 50) + 'px'; // Center roughly
-        el.style.top = y + 'px';
-        el.style.color = col;
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 1000);
+    updateUI() {
+        document.getElementById('score').innerText = this.score;
+        document.getElementById('high-score').innerText = this.highScore;
+        document.getElementById('level-val').innerText = this.level;
+        document.getElementById('energy-val').innerText = this.energy + '%';
+        document.getElementById('xp-bar').style.width = (this.xp/500)*100 + '%';
+        
+        // Skill buttons visual state
+        document.getElementById('btn-reroll').style.opacity = this.energy>=50 ? 1 : 0.5;
+        document.getElementById('btn-smash').style.opacity = this.energy>=100 ? 1 : 0.5;
     }
-};
-
-function adjustColor(color, amount) {
-    return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
 }
 
-function setVolume(val) {
-    AudioSys.vol = val / 100;
-}
-
-function toggleMenu() {
-    const el = document.getElementById('menu-overlay');
-    const isActive = el.classList.contains('active');
-    isActive ? el.classList.remove('active') : el.classList.add('active');
-    DataMgr.updateUI();
-}
-
-// Start
-window.onload = () => {
-    DataMgr.load();
-    Nebula.init();
-    window.game = new GameEngine();
-};
+window.onload = () => window.game = new Game();
 </script>
 </body>
 </html>
-
